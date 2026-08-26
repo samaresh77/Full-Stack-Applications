@@ -255,3 +255,23 @@ def get_dashboard_stats(
         "in_progress_tickets": in_progress_tickets,
         "closed_tickets": closed_tickets
     }
+
+@router.get("/support-users")
+def get_support_users(
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    users = (
+        db.query(User)
+        .filter(User.role == "support")
+        .order_by(User.username)
+        .all()
+    )
+
+    return [
+        {
+            "id": user.id,
+            "username": user.username
+        }
+        for user in users
+    ]
