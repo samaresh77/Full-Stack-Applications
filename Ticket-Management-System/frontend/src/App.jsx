@@ -9,6 +9,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 import SupportDashboard from "./pages/support/SupportDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -34,7 +35,11 @@ function App() {
             path="/login"
             element={<Login />}
           />
-
+          
+          <Route
+            path="/register"
+            element={<Register />}
+          />
 
           <Route
             path="/support"
