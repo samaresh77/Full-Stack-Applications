@@ -117,3 +117,68 @@ class ZohoClient:
             )
 
         return response.json()
+
+    async def create_lead(self, data: dict) -> dict:
+        url = f"{self.api_domain}/crm/v8/Leads"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                headers=self.headers,
+                json={
+                    "data": [data],
+                },
+                timeout=30.0,
+            )
+
+        if response.is_error:
+            raise RuntimeError(
+                f"Zoho returned HTTP {response.status_code}: "
+                f"{response.text}"
+            )
+
+        return response.json()
+
+    async def list_leads(self) -> dict:
+        url = f"{self.api_domain}/crm/v8/Leads"
+
+        params = {
+            "fields": (
+                "First_Name,Last_Name,Email,"
+                "Phone,Company,Lead_Source"
+            )
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url,
+                headers=self.headers,
+                params=params,
+                timeout=30.0,
+            )
+
+        if response.is_error:
+            raise RuntimeError(
+                f"Zoho returned HTTP {response.status_code}: "
+                f"{response.text}"
+            )
+
+        return response.json()
+
+    async def get_lead(self, lead_id: str) -> dict:
+        url = f"{self.api_domain}/crm/v8/Leads/{lead_id}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url,
+                headers=self.headers,
+                timeout=30.0,
+            )
+
+        if response.is_error:
+            raise RuntimeError(
+                f"Zoho returned HTTP {response.status_code}: "
+                f"{response.text}"
+            )
+
+        return response.json()
