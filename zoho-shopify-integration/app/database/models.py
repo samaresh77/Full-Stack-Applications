@@ -36,6 +36,11 @@ class IntegrationToken(Base):
         nullable=True,
     )
 
+    api_domain: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
