@@ -10,6 +10,9 @@ from app.database.database import Base, engine
 from app.api.shopify_customer_routes import (
     router as shopify_customer_router,
 )
+from app.api.shopify_order_routes import (
+    router as shopify_order_router,
+)
 
 
 Base.metadata.create_all(bind=engine)
@@ -24,8 +27,10 @@ app = FastAPI(
 app.include_router(zoho_router)
 app.include_router(zoho_contact_router)
 app.include_router(zoho_lead_router)
+
 app.include_router(shopify_auth_router)
 app.include_router(shopify_customer_router)
+app.include_router(shopify_order_router)
 
 
 @app.get("/")

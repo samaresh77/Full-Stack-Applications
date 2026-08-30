@@ -132,3 +132,63 @@ class ShopifyClient:
             )
 
         return response.json()
+
+    async def list_orders(self, limit: int = 50) -> dict:
+        access_token = await self.auth.get_access_token()
+
+        url = (
+            f"https://{settings.shopify_shop_domain}"
+            f"/admin/api/{settings.shopify_api_version}"
+            "/orders.json"
+        )
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url,
+                headers={
+                    "X-Shopify-Access-Token": access_token,
+                    "Content-Type": "application/json",
+                },
+                params={
+                    "limit": limit,
+                    "status": "any",
+                },
+                timeout=30.0,
+            )
+
+        if response.is_error:
+            raise RuntimeError(
+                f"Shopify returned HTTP "
+                f"{response.status_code}: "
+                f"{response.text}"
+            )
+
+        return response.json()
+
+    async def get_order(self, order_id: int) -> dict:
+        access_token = await self.auth.get_access_token()
+
+        url = (
+            f"https://{settings.shopify_shop_domain}"
+            f"/admin/api/{settings.shopify_api_version}"
+            f"/orders/{order_id}.json"
+        )
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url,
+                headers={
+                    "X-Shopify-Access-Token": access_token,
+                    "Content-Type": "application/json",
+                },
+                timeout=30.0,
+            )
+
+        if response.is_error:
+            raise RuntimeError(
+                f"Shopify returned HTTP "
+                f"{response.status_code}: "
+                f"{response.text}"
+            )
+
+        return response.json()
