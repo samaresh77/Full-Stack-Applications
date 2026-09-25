@@ -35,28 +35,44 @@ def login(
     login_data: LoginRequest,
     db: Session = Depends(get_db)
 ):
+
     user = (
         db.query(User)
         .filter(
-            User.username == login_data.username
+            User.username ==
+            login_data.username
         )
         .first()
     )
 
+
     if not user:
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Invalid username, password, or account type"
         )
+
 
     if not verify_password(
         login_data.password,
         user.password_hash
     ):
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Invalid username, password, or account type"
         )
+
+
+    # Check selected account type
+    if user.role != login_data.role:
+
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username, password, or account type"
+        )
+
 
     access_token = create_access_token(
         data={
@@ -66,31 +82,24 @@ def login(
         }
     )
 
+
     return {
         "access_token": access_token,
         "token_type": "bearer"
     }
 
-
 # =========================================================
 # REGISTER
 # =========================================================
 
-@router.post(
-    "/register",
-    status_code=status.HTTP_201_CREATED
-)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(
     register_data: RegisterRequest,
     db: Session = Depends(get_db)
 ):
-    # Check whether username already exists
-
     existing_user = (
         db.query(User)
-        .filter(
-            User.username == register_data.username
-        )
+        .filter(User.username == register_data.username)
         .first()
     )
 
@@ -100,31 +109,15 @@ def register(
             detail="Username already exists"
         )
 
-
-    # Create Support user
-
     user = User(
         username=register_data.username,
-        password_hash=hash_password(
-            register_data.password
-        ),
-        role="support"
+        password_hash=hash_password(register_data.password),
+        role=register_data.role
     )
 
-
     db.add(user)
-
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already exists"
-        )
-
+    db.commit()
     db.refresh(user)
-
 
     return {
         "message": "Account created successfully",
@@ -132,7 +125,6 @@ def register(
         "username": user.username,
         "role": user.role
     }
-
 
 # =========================================================
 # CURRENT USER

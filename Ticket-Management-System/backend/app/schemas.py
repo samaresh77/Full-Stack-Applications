@@ -1,18 +1,14 @@
 from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
+from typing import Literal
 
 class TicketStatus(str, Enum):
     OPEN = "Open"
     IN_PROGRESS = "In Progress"
     CLOSED = "Closed"
 
-    
 class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-class RegisterRequest(BaseModel):
     username: str = Field(
         min_length=3,
         max_length=50
@@ -22,6 +18,13 @@ class RegisterRequest(BaseModel):
         min_length=8,
         max_length=72
     )
+
+    role: Literal["admin", "support"]
+
+class RegisterRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=50)
+    password: str = Field(min_length=8, max_length=72)
+    role: Literal["admin", "support"]
 
 class TokenResponse(BaseModel):
     access_token: str
