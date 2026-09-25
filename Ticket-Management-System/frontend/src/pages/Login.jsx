@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   Link,
   Navigate,
@@ -9,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 
 
 function Login() {
+
   const navigate = useNavigate();
 
   const {
@@ -23,6 +25,9 @@ function Login() {
   const [password, setPassword] =
     useState("");
 
+  const [role, setRole] =
+    useState("support");
+
   const [error, setError] =
     useState("");
 
@@ -31,10 +36,11 @@ function Login() {
 
 
   // =========================================================
-  // REDIRECT IF ALREADY LOGGED IN
+  // ALREADY LOGGED IN
   // =========================================================
 
   if (user) {
+
     return (
       <Navigate
         to={
@@ -45,6 +51,7 @@ function Login() {
         replace
       />
     );
+
   }
 
 
@@ -53,49 +60,105 @@ function Login() {
   // =========================================================
 
   const handleSubmit = async (event) => {
+
     event.preventDefault();
 
     setError("");
     setLoading(true);
 
+
     try {
 
       const loggedInUser =
         await login(
-          username,
-          password
+          username.trim(),
+          password,
+          role
         );
 
+
+      // =====================================================
+      // CHECK SELECTED ROLE
+      // =====================================================
+
+      if (
+        loggedInUser.role !== role
+      ) {
+
+        setError(
+          `This account is registered as ${loggedInUser.role}, not ${role}.`
+        );
+
+        return;
+      }
+
+
+      // =====================================================
+      // REDIRECT
+      // =====================================================
 
       if (
         loggedInUser.role === "admin"
       ) {
-        navigate("/admin");
+
+        navigate(
+          "/admin",
+          {
+            replace: true,
+          }
+        );
+
+      } else if (
+        loggedInUser.role === "support"
+      ) {
+
+        navigate(
+          "/support",
+          {
+            replace: true,
+          }
+        );
+
       } else {
-        navigate("/support");
+
+        setError(
+          "Your account has an invalid role."
+        );
+
       }
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Login error:",
+        error
+      );
 
 
       if (
         error.response?.status === 401
       ) {
+
         setError(
-          "Invalid username or password."
+          error.response?.data?.detail ||
+          "Invalid username, password, or account type."
         );
 
       } else {
+
         setError(
+          error.response?.data?.detail ||
           "Unable to sign in. Please try again."
         );
+
       }
 
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
 
@@ -108,25 +171,32 @@ function Login() {
 
       <div className="login-card">
 
-        {/* Logo */}
+        {/* =================================================
+            LOGO
+        ================================================= */}
 
         <div className="login-logo">
           H
         </div>
 
 
-        {/* Heading */}
+        {/* =================================================
+            HEADING
+        ================================================= */}
 
         <h1>
           Welcome back
         </h1>
+
 
         <p className="login-subtitle">
           Sign in to your Mini Helpdesk account
         </p>
 
 
-        {/* Error */}
+        {/* =================================================
+            ERROR
+        ================================================= */}
 
         {error && (
           <div className="alert alert-error">
@@ -135,11 +205,15 @@ function Login() {
         )}
 
 
-        {/* Login Form */}
+        {/* =================================================
+            LOGIN FORM
+        ================================================= */}
 
         <form onSubmit={handleSubmit}>
 
-          {/* Username */}
+          {/* =================================================
+              USERNAME
+          ================================================= */}
 
           <div className="form-group">
 
@@ -166,7 +240,9 @@ function Login() {
           </div>
 
 
-          {/* Password */}
+          {/* =================================================
+              PASSWORD
+          ================================================= */}
 
           <div className="form-group">
 
@@ -193,7 +269,45 @@ function Login() {
           </div>
 
 
-          {/* Submit */}
+          {/* =================================================
+              ACCOUNT TYPE
+          ================================================= */}
+
+          <div className="form-group">
+
+            <label htmlFor="login-role">
+              Account Type
+            </label>
+
+            <select
+              id="login-role"
+              className="form-control"
+              value={role}
+              onChange={(event) =>
+                setRole(
+                  event.target.value
+                )
+              }
+              disabled={loading}
+              required
+            >
+
+              <option value="support">
+                Support
+              </option>
+
+              <option value="admin">
+                Admin
+              </option>
+
+            </select>
+
+          </div>
+
+
+          {/* =================================================
+              LOGIN BUTTON
+          ================================================= */}
 
           <button
             className="btn btn-primary"
@@ -208,7 +322,9 @@ function Login() {
         </form>
 
 
-        {/* Register */}
+        {/* =================================================
+            REGISTER
+        ================================================= */}
 
         <div
           style={{

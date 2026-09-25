@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
 import api from "../services/api";
 
 
@@ -6,69 +12,153 @@ const AuthContext = createContext(null);
 
 
 export function AuthProvider({ children }) {
+
   const [token, setToken] = useState(
     localStorage.getItem("token")
   );
 
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
+  const [loading, setLoading] =
+    useState(true);
+
+
+  // =========================================================
+  // CHECK EXISTING LOGIN
+  // =========================================================
 
   useEffect(() => {
+
     if (!token) {
+      setUser(null);
       setLoading(false);
       return;
     }
 
-    api
-      .get("/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
+
+    const checkAuthentication = async () => {
+
+      try {
+
+        const response =
+          await api.get("/auth/me", {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          });
+
+
         setUser(response.data);
-      })
-      .catch(() => {
+
+      } catch (error) {
+
+        console.error(
+          "Authentication check failed:",
+          error
+        );
+
+
         localStorage.removeItem("token");
+
         setToken(null);
+
         setUser(null);
-      })
-      .finally(() => {
+
+      } finally {
+
         setLoading(false);
-      });
+
+      }
+    };
+
+
+    checkAuthentication();
+
   }, [token]);
 
 
-  const login = async (username, password) => {
-    const response = await api.post("/auth/login", {
-      username,
-      password,
-    });
+  // =========================================================
+  // LOGIN
+  // =========================================================
 
-    const accessToken = response.data.access_token;
+  const login = async (
+  username,
+  password,
+  role
+) => {
 
-    localStorage.setItem("token", accessToken);
-    setToken(accessToken);
+  const response =
+    await api.post(
+      "/auth/login",
+      {
+        username,
+        password,
+        role,
+      }
+    );
 
-    const userResponse = await api.get("/auth/me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
 
-    setUser(userResponse.data);
+  const accessToken =
+    response.data.access_token;
 
-    return userResponse.data;
-  };
 
+  if (!accessToken) {
+    throw new Error(
+      "Access token was not returned by the server."
+    );
+  }
+
+
+  localStorage.setItem(
+    "token",
+    accessToken
+  );
+
+  setToken(accessToken);
+
+
+  const userResponse =
+    await api.get(
+      "/auth/me",
+      {
+        headers: {
+          Authorization:
+            `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+
+  const loggedInUser =
+    userResponse.data;
+
+
+  setUser(loggedInUser);
+
+
+  return loggedInUser;
+};
+
+  // =========================================================
+  // LOGOUT
+  // =========================================================
 
   const logout = () => {
-    localStorage.removeItem("token");
+
+    localStorage.removeItem(
+      "token"
+    );
+
     setToken(null);
+
     setUser(null);
   };
 
+
+  // =========================================================
+  // PROVIDER
+  // =========================================================
 
   return (
     <AuthContext.Provider
@@ -85,6 +175,10 @@ export function AuthProvider({ children }) {
   );
 }
 
+
+// =========================================================
+// USE AUTH
+// =========================================================
 
 export function useAuth() {
   return useContext(AuthContext);

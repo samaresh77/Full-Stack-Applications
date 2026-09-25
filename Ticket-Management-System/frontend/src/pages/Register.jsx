@@ -1,45 +1,98 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 import api from "../services/api";
 
 
 function Register() {
+
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+
+  const [username, setUsername] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
   const [confirmPassword, setConfirmPassword] =
     useState("");
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [role, setRole] =
+    useState("support");
 
 
-  const handleSubmit = async (event) => {
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+
+  // =========================================================
+  // REGISTER
+  // =========================================================
+
+  const handleSubmit = async (
+    event
+  ) => {
+
     event.preventDefault();
 
     setError("");
     setSuccess("");
 
 
-    // Check passwords
+    // =========================================================
+    // VALIDATION
+    // =========================================================
 
-    if (password !== confirmPassword) {
+    if (username.trim().length < 3) {
+
       setError(
-        "Passwords do not match."
+        "Username must be at least 3 characters."
       );
+
       return;
     }
 
 
-    // Check password length
-
     if (password.length < 8) {
+
       setError(
         "Password must be at least 8 characters."
       );
+
+      return;
+    }
+
+
+    if (password !== confirmPassword) {
+
+      setError(
+        "Passwords do not match."
+      );
+
+      return;
+    }
+
+
+    if (
+      role !== "admin" &&
+      role !== "support"
+    ) {
+
+      setError(
+        "Please select a valid account type."
+      );
+
       return;
     }
 
@@ -48,12 +101,24 @@ function Register() {
 
 
     try {
-      await api.post(
-        "/auth/register",
-        {
-          username,
-          password,
-        }
+
+      const response =
+        await api.post(
+          "/auth/register",
+          {
+            username:
+              username.trim(),
+
+            password,
+
+            role,
+          }
+        );
+
+
+      console.log(
+        "Registration response:",
+        response.data
       );
 
 
@@ -62,41 +127,71 @@ function Register() {
       );
 
 
+      // Clear form
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
+      setRole("support");
+
+
       setTimeout(() => {
-        navigate("/login");
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
       }, 1200);
 
 
     } catch (error) {
-      console.error(error);
+
+      console.error(
+        "Registration error:",
+        error
+      );
 
 
       if (
         error.response?.status === 400
       ) {
+
         setError(
-          error.response.data.detail ||
+          error.response?.data?.detail ||
           "Username already exists."
         );
 
       } else if (
         error.response?.status === 422
       ) {
+
         setError(
-          "Please check your username and password."
+          error.response?.data?.detail ||
+          "Please check your registration details."
         );
 
       } else {
+
         setError(
+          error.response?.data?.detail ||
           "Unable to create account. Please try again."
         );
+
       }
 
     } finally {
+
       setLoading(false);
+
     }
   };
 
+
+  // =========================================================
+  // UI
+  // =========================================================
 
   return (
     <div className="login-page">
@@ -116,9 +211,9 @@ function Register() {
           Create your account
         </h1>
 
+
         <p className="login-subtitle">
-          Join Mini Helpdesk and start
-          creating support tickets.
+          Create your Mini Helpdesk account
         </p>
 
 
@@ -140,7 +235,11 @@ function Register() {
         )}
 
 
-        <form onSubmit={handleSubmit}>
+        {/* Form */}
+
+        <form
+          onSubmit={handleSubmit}
+        >
 
           {/* Username */}
 
@@ -163,6 +262,7 @@ function Register() {
               }
               minLength={3}
               maxLength={50}
+              autoComplete="username"
               required
               disabled={loading}
             />
@@ -191,6 +291,7 @@ function Register() {
               }
               minLength={8}
               maxLength={72}
+              autoComplete="new-password"
               required
               disabled={loading}
             />
@@ -198,7 +299,7 @@ function Register() {
           </div>
 
 
-          {/* Confirm password */}
+          {/* Confirm Password */}
 
           <div className="form-group">
 
@@ -219,9 +320,47 @@ function Register() {
               }
               minLength={8}
               maxLength={72}
+              autoComplete="new-password"
               required
               disabled={loading}
             />
+
+          </div>
+
+
+          {/* =================================================
+              ACCOUNT TYPE
+          ================================================= */}
+
+          <div className="form-group">
+
+            <label htmlFor="register-role">
+              Account Type
+            </label>
+
+
+            <select
+              id="register-role"
+              className="form-control"
+              value={role}
+              onChange={(event) =>
+                setRole(
+                  event.target.value
+                )
+              }
+              disabled={loading}
+              required
+            >
+
+              <option value="support">
+                Support
+              </option>
+
+              <option value="admin">
+                Admin
+              </option>
+
+            </select>
 
           </div>
 
@@ -241,23 +380,34 @@ function Register() {
         </form>
 
 
-        {/* Login link */}
+        {/* Login Link */}
 
-        <p
+        <div
           style={{
-            marginTop: "22px",
-            marginBottom: 0,
+            marginTop: "24px",
+            paddingTop: "20px",
+            borderTop:
+              "1px solid #edf0f4",
             textAlign: "center",
-            color: "#64748b",
-            fontSize: "14px",
           }}
         >
-          Already have an account?{" "}
+
+          <p
+            style={{
+              marginBottom: "7px",
+              color: "#64748b",
+              fontSize: "14px",
+            }}
+          >
+            Already have an account?
+          </p>
+
 
           <Link
             to="/login"
             style={{
               color: "#2563eb",
+              fontSize: "14px",
               fontWeight: 700,
               textDecoration: "none",
             }}
@@ -265,7 +415,7 @@ function Register() {
             Sign in
           </Link>
 
-        </p>
+        </div>
 
       </div>
 

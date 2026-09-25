@@ -11,36 +11,70 @@ import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-import SupportDashboard from "./pages/support/SupportDashboard";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// =========================================================
+// ADMIN PAGES
+// =========================================================
+
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminTickets from "./pages/admin/AdminTickets";
+import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
+
+// =========================================================
+// SUPPORT PAGES
+// =========================================================
+
+import SupportDashboard from "./pages/support/SupportDashboard";
+import MyTickets from "./pages/support/MyTickets";
 import CreateTicket from "./pages/support/CreateTicket";
 import TicketDetails from "./pages/support/TicketDetails";
 import EditTicket from "./pages/support/EditTicket";
-
-import AdminTickets from "./pages/admin/AdminTickets";
-import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
 
 
 function App() {
   return (
     <BrowserRouter>
+
       <AuthProvider>
+
         <Navbar />
+
         <Routes>
 
+          {/* =====================================================
+              PUBLIC ROUTES
+          ===================================================== */}
+
+          {/* Root */}
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to="/login"
+                replace
+              />
+            }
+          />
+
+          {/* Login */}
           <Route
             path="/login"
             element={<Login />}
           />
-          
+
+          {/* Register */}
           <Route
             path="/register"
             element={<Register />}
           />
 
+
+          {/* =====================================================
+              SUPPORT ROUTES
+          ===================================================== */}
+
+          {/* Support Dashboard */}
           <Route
             path="/support"
             element={
@@ -50,6 +84,17 @@ function App() {
             }
           />
 
+          {/* My Tickets */}
+          <Route
+            path="/support/tickets"
+            element={
+              <ProtectedRoute requiredRole="support">
+                <MyTickets />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Create Ticket - existing route preserved */}
           <Route
             path="/support/create"
             element={
@@ -59,6 +104,17 @@ function App() {
             }
           />
 
+          {/* Additional create-ticket route */}
+          <Route
+            path="/support/tickets/create"
+            element={
+              <ProtectedRoute requiredRole="support">
+                <CreateTicket />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Support Ticket Details */}
           <Route
             path="/support/tickets/:id"
             element={
@@ -68,6 +124,7 @@ function App() {
             }
           />
 
+          {/* Support Edit Ticket */}
           <Route
             path="/support/tickets/:id/edit"
             element={
@@ -77,17 +134,22 @@ function App() {
             }
           />
 
+
+          {/* =====================================================
+              ADMIN ROUTES
+          ===================================================== */}
+
+          {/* Admin Dashboard */}
           <Route
             path="/admin"
             element={
-              <ProtectedRoute
-                requiredRole="admin"
-              >
+              <ProtectedRoute requiredRole="admin">
                 <AdminDashboard />
               </ProtectedRoute>
             }
           />
 
+          {/* Admin Tickets */}
           <Route
             path="/admin/tickets"
             element={
@@ -97,6 +159,7 @@ function App() {
             }
           />
 
+          {/* Admin Ticket Details */}
           <Route
             path="/admin/tickets/:id"
             element={
@@ -105,6 +168,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+
+          {/* =====================================================
+              UNKNOWN ROUTES
+          ===================================================== */}
 
           <Route
             path="*"
@@ -119,6 +187,7 @@ function App() {
         </Routes>
 
       </AuthProvider>
+
     </BrowserRouter>
   );
 }
