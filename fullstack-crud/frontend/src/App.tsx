@@ -1,15 +1,24 @@
-import './App.css'
+import Header from "./components/Header"
+import TaskCard from "./components/TaskCard"
 
 function App() {
-  const appName: string = "Task Management System"
-  const version: number = 1
-  const production: boolean = false
-
   return (
     <div>
-      <h1>{appName}</h1>
-      <p>Versions: {version}</p>
-      <p>Production: {production ? "Yes" : "No"}</p>
+      <Header title="Task Management System" />
+
+      <main>
+        <h2>My Tasks</h2>
+
+        <TaskCard
+          title="Learn React + TypeScript"
+          status="In Progress"
+        />
+
+        <TaskCard
+          title="Build FastAPI Backend"
+          status="Pending"
+        />
+      </main>
     </div>
   )
 }
