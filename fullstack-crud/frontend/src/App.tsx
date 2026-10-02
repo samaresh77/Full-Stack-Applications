@@ -1,34 +1,38 @@
+import { useState } from "react"
 import Header from "./components/Header"
 import TaskCard from "./components/TaskCard"
 import type { Task } from "./types/task"
 
-function App() {
-  const task1: Task = {
+const initialTasks: Task[] = [
+  {
     id: 1,
     title: "Learn TypeScript",
     description: "Learn interfaces and union types",
     status: "completed",
     priority: "high",
-    dueDate: "2026-10-10"
-  }
-
-  const task2: Task = {
+    dueDate: "2026-10-10",
+  },
+  {
     id: 2,
     title: "Build FastAPI Backend",
     description: "Create CRUD APIs using FastAPI",
     status: "in-progress",
     priority: "high",
-    dueDate: "2026-10-11"
-  }
-
-  const task3: Task = {
+    dueDate: "2026-10-15",
+  },
+  {
     id: 3,
     title: "Learn Node.js",
     description: "Learn Node.js and Express",
     status: "pending",
     priority: "medium",
-    dueDate: "2026-10-12"
-  }
+    dueDate: "2026-10-20",
+  },
+]
+
+
+function App() {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks)
 
   return (
     <div>
@@ -40,9 +44,35 @@ function App() {
       <main>
         <h2>My Tasks</h2>
 
-        <TaskCard task={task1} />
-        <TaskCard task={task2} />
-        <TaskCard task={task3} />
+        {tasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+          />
+        ))}
+        <button onClick={() =>
+          setTasks([...tasks, 
+            {
+              id: Date.now(),
+              title: "Sample task",
+              description: "Learn sample task",
+              status: "pending",
+              priority: "medium",
+              dueDate: "2026-10-20",
+            }
+          ])}
+          >
+          Add Sample Task
+        </button>
+        <button onClick={() => {
+            setTasks(tasks.slice(0, -1))
+          }}
+        >
+          Remove Last Task
+        </button>
+        <button onClick={() => setTasks([])}>
+          Delete All Tasks
+        </button>
       </main>
     </div>
   )
