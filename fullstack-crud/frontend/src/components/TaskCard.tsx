@@ -1,13 +1,15 @@
 interface TaskCardProps {
   title: string
-  status: string
+  status: "pending" | "in-progress" | "completed"
+  priority: "low" | "medium" | "high"
 }
 
-function TaskCard({ title, status }: TaskCardProps) {
+function TaskCard({ title, status, priority }: TaskCardProps) {
   return (
     <div>
-      <h3>{title}</h3>
+      <h4>{title}</h4>
       <p>Status: {status}</p>
+      <p>Priority: {priority}</p>
     </div>
   )
 }

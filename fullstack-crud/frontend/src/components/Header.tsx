@@ -1,12 +1,13 @@
 interface HeaderProps {
   title: string
+  subtitle: string
 }
 
-function Header({ title }: HeaderProps) {
+function Header({ title, subtitle }: HeaderProps) {
   return (
     <header>
       <h1>{title}</h1>
-      <p>Manage your tasks efficiently</p>
+      <h3>{subtitle}</h3>
     </header>
   )
 }
