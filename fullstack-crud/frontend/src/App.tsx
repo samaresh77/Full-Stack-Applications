@@ -2,6 +2,7 @@ import { useState } from "react"
 import Header from "./components/Header"
 import TaskCard from "./components/TaskCard"
 import type { Task } from "./types/task"
+import type { ChangeEvent } from "react"
 
 const initialTasks: Task[] = [
   {
@@ -33,6 +34,12 @@ const initialTasks: Task[] = [
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  const [taskTitle, setTaskTitle] = useState<string>("")
+  const [description, setDescription] = useState<string>("")
+
+  function handleTitleChange(event: ChangeEvent<HTMLInputElement>) {
+    setTaskTitle(event.target.value)
+  }
 
   return (
     <div>
@@ -43,6 +50,21 @@ function App() {
 
       <main>
         <h2>My Tasks</h2>
+        <input
+          type="text"
+          placeholder="Enter task title"
+          value={taskTitle}
+          onChange={handleTitleChange}
+        />
+
+        <p>Task Title: {taskTitle}</p>
+        <input
+          type="text"
+          placeholder="Enter Description"
+          
+        />
+
+        <p>Task Description: {description}</p>
 
         {tasks.map((task) => (
           <TaskCard
