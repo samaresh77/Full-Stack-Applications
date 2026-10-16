@@ -40,6 +40,9 @@ function App() {
   function handleTitleChange(event: ChangeEvent<HTMLInputElement>) {
     setTaskTitle(event.target.value)
   }
+  function handleDescriptionChange(event: ChangeEvent<HTMLInputElement>) {
+    setDescription(event.target.value)
+  }
 
   return (
     <div>
@@ -61,7 +64,8 @@ function App() {
         <input
           type="text"
           placeholder="Enter Description"
-          
+          value={description}
+          onChange={handleDescriptionChange}
         />
 
         <p>Task Description: {description}</p>
