@@ -2,7 +2,7 @@ import { useState } from "react"
 import Header from "./components/Header"
 import TaskCard from "./components/TaskCard"
 import type { Task } from "./types/task"
-import type { ChangeEvent } from "react"
+import type { ChangeEvent, FormEvent } from "react"
 
 const initialTasks: Task[] = [
   {
@@ -43,6 +43,23 @@ function App() {
   function handleDescriptionChange(event: ChangeEvent<HTMLInputElement>) {
     setDescription(event.target.value)
   }
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const newTask: Task = {
+      id: Date.now(),
+      title: taskTitle,
+      description: description,
+      status: "pending",
+      priority: "medium",
+      dueDate: "2026-10-20",
+    }
+    setTasks([...tasks, newTask])
+    
+    setTaskTitle("")
+    setDescription("")
+
+    console.log("Form submitted", tasks)
+  }
 
   return (
     <div>
@@ -53,22 +70,26 @@ function App() {
 
       <main>
         <h2>My Tasks</h2>
-        <input
-          type="text"
-          placeholder="Enter task title"
-          value={taskTitle}
-          onChange={handleTitleChange}
-        />
 
-        <p>Task Title: {taskTitle}</p>
-        <input
-          type="text"
-          placeholder="Enter Description"
-          value={description}
-          onChange={handleDescriptionChange}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Enter task title"
+            value={taskTitle}
+            onChange={handleTitleChange}
+          />
 
-        <p>Task Description: {description}</p>
+          <input
+            type="text"
+            placeholder="Enter Description"
+            value={description}
+            onChange={handleDescriptionChange}
+          />
+
+          <button type="submit">
+            Add Task
+          </button>
+        </form>
 
         {tasks.map((task) => (
           <TaskCard
